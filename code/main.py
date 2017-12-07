@@ -12,11 +12,29 @@ cv2.imshow('image', imthresh)
 h, w = img.shape[:2]
 
 leftextent = w;
+topextent = h;
 for i in range(1, h):
 	for j in range(1, w):
-		if(imthresh[i, j] > 0 and j < leftextent):
-			leftextent = j
-			break
+		if imthresh[i, j] > 0:
+			if i < topextent:
+				topextent = i
+			if j < leftextent:
+				leftextent = j
+				break
+
+rightextent = 1
+bottomextent = 1
+for i in range(h-1, 0, -1):
+	for j in range(w-1, 0, -1):
+		if imthresh[i, j] > 0:
+			if i > bottomextent:
+				bottomextent = i
+			if j > rightextent:
+				rightextent = j
+				break
 print(leftextent)
+print(topextent)
+print(rightextent)
+print(bottomextent)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
