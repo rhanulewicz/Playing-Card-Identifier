@@ -36,5 +36,9 @@ print(leftextent)
 print(topextent)
 print(rightextent)
 print(bottomextent)
+
+imgcrop = imthresh[topextent:bottomextent, leftextent:rightextent]
+cv2.imshow('imagecrop', imgcrop)
+
 cv2.waitKey(0)
 cv2.destroyAllWindows()
