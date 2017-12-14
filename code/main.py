@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from os import listdir
 from os.path import isfile, join
 
-img = cv2.imread('../data/input/9s_in.jpg', cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('../data/input/qh.jpg', cv2.IMREAD_GRAYSCALE)
 
 # First, we'll threshold the image and make it a binary image 
 ret,imthresh = cv2.threshold(img, 180, 255, cv2.THRESH_BINARY)
@@ -15,7 +15,7 @@ imthresh_open = cv2.morphologyEx(imthresh, cv2.MORPH_OPEN, kernel)
 
 # Get 4 corner points using rotated rectangle
 _, contours, _ = cv2.findContours(imthresh_open,2,1)
-cv2.imshow("uh", imthresh_open)
+#cv2.imshow("uh", imthresh_open)
 cnt = contours[0]
 #Find largest contour
 cnt_max = 0
@@ -57,13 +57,13 @@ pts_dst = np.array([[0.0, 0.0], [691, 0.0], [0.0, 1056],[691, 1056]])
 im_dst = np.zeros((1056, 691, 1), np.uint8)
 homo, status = cv2.findHomography(pts_src, pts_dst)
 im_homo = cv2.warpPerspective(imthresh, homo, (im_dst.shape[1],im_dst.shape[0]))
-cv2.imshow('homo', im_homo);
+#cv2.imshow('homo', im_homo);
 
 # Isolate the card letter and symbol
 im_sym_letter = im_homo[18:600, 18:150]
 ret2,im_sym_letter_thresh = cv2.threshold(im_sym_letter, 200, 255, cv2.THRESH_BINARY)
 im_sym_letter_thresh_open = cv2.morphologyEx(im_sym_letter_thresh, cv2.MORPH_OPEN, kernel)
-cv2.imshow('im_sym_letter_thresh', im_sym_letter_thresh_open)
+#cv2.imshow('im_sym_letter_thresh', im_sym_letter_thresh_open)
 
 # Find letter and symbol bounding boxes
 _, contours, _ = cv2.findContours(cv2.bitwise_not(im_sym_letter_thresh_open),2,1)
@@ -95,8 +95,8 @@ im_sym_resized = cv2.resize(im_sym, (100,100))
 im_letter_resized = cv2.resize(im_letter, (100,100))
 ret3, im_sym_thresh = cv2.threshold(im_sym_resized, 200, 255, cv2.THRESH_BINARY)
 ret4, im_letter_thresh = cv2.threshold(im_letter_resized, 200, 255, cv2.THRESH_BINARY)
-cv2.imshow('im_letter_thresh', im_letter_thresh)
-cv2.imshow('im_sym_thresh', im_sym_thresh)
+# cv2.imshow('im_letter_thresh', im_letter_thresh)
+# cv2.imshow('im_sym_thresh', im_sym_thresh)
 
 # Search through all the template cards and find the one with the lowest difference
 bestError = float("inf")
@@ -106,7 +106,7 @@ onlyfiles = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
 for n in range(0, len(onlyfiles)):
 	cur_img = cv2.imread( join(mypath,onlyfiles[n]), cv2.IMREAD_GRAYSCALE )
 	# Isolate letter and symbol then threshold
-	cur_sym_letter = cur_img[18:300, 18:100]
+	cur_sym_letter = cur_img[18:300, 18:110]
 	ret4, cur_sym_letter_thresh = cv2.threshold(cur_sym_letter, 200, 255, cv2.THRESH_BINARY)
 	# Find letter and symbol bounding boxes
 	_, cur_contours, _ = cv2.findContours(cv2.bitwise_not(cur_sym_letter_thresh),2,1)
@@ -126,8 +126,9 @@ for n in range(0, len(onlyfiles)):
 	# Find difference between input card and template card
 	out_sym = im_sym_thresh - cur_sym_thresh
 	out_letter = im_letter_thresh - cur_letter_thresh
-	if onlyfiles[n] == "9S.png":
-		cv2.imshow("cur_sym_thresh", cur_sym_thresh)
+	# if onlyfiles[n] == "QH.png":
+	# 	cv2.imshow("cur_sym_thresh", cur_sym_thresh)
+	# 	cv2.imshow("cur_letter_thresh", cur_letter_thresh)
 
 	error = cv2.countNonZero(out_sym) + cv2.countNonZero(out_letter)
 	if error < bestError:
