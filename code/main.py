@@ -5,17 +5,18 @@ from os import listdir
 from os.path import isfile, join
 import math
 
-img = cv2.imread('../data/input/2c.jpg', cv2.IMREAD_GRAYSCALE)
+THRESHOLD = 128
+img = cv2.imread('../data/input/qc.jpg', cv2.IMREAD_GRAYSCALE)
 
 # First, we'll threshold the image and make it a binary image 
-_,imthresh = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY)
+_,imthresh = cv2.threshold(img, THRESHOLD, 255, cv2.THRESH_BINARY)
 
 # Perform opening on thresholded image to remove noise in space
 kernel = np.ones((6,6), np.uint8)
 imthresh_open = cv2.morphologyEx(imthresh, cv2.MORPH_OPEN, kernel)
 
 # Get 4 corner points using rotated rectangle
-_, contours, _ = cv2.findContours(imthresh_open,2,1)
+_, contours, _ = cv2.findContours(imthresh_open, 2, 1)
 cnt = contours[0]
 
 #Find largest contour
@@ -64,7 +65,7 @@ pts_src = np.array([cornerNW, cornerNE, cornerSW, cornerSE])
 pts_dst = np.array([[0.0, 0.0], [691, 0.0], [0.0, 1056],[691, 1056]])
 im_dst = np.zeros((1056, 691, 1), np.uint8)
 hom, status = cv2.findHomography(pts_src, pts_dst)
-im_hom = cv2.warpPerspective(imthresh, hom, (im_dst.shape[1],im_dst.shape[0]))
+im_hom = cv2.warpPerspective(imthresh, hom, (im_dst.shape[1], im_dst.shape[0]))
 cv2.imshow('im_hom', im_hom);
 
 # Isolate the card letter and symbol
@@ -74,7 +75,7 @@ im_suite_rank_thresh_open = cv2.morphologyEx(im_suite_rank_thresh, cv2.MORPH_OPE
 cv2.imshow('im_suite_rank_thresh_open', im_suite_rank_thresh_open)
 
 # Find letter and symbol bounding boxes
-_, contours, _ = cv2.findContours(cv2.bitwise_not(im_suite_rank_thresh_open),cv2.RETR_EXTERNAL,1)
+_, contours, _ = cv2.findContours(cv2.bitwise_not(im_suite_rank_thresh_open), cv2.RETR_EXTERNAL, 1)
 cnt_suite = contours[0]
 cnt_rank = contours[1]
 suite_x, suite_y, suite_w, suite_h = cv2.boundingRect(cnt_suite)
@@ -122,9 +123,10 @@ for n in range(0, len(onlyfiles)):
 	diff_suite = im_suite_thresh - cur_suite_thresh
 	diff_rank = im_rank_thresh - cur_rank_thresh
 
-	# if onlyfiles[n] == "KS.png":
+	# if onlyfiles[n] == "10H.png":
 	# 	cv2.imshow("cur_suite_rank_thresh_open", cur_suite_rank_thresh_open)
 	# 	cv2.imshow("diff_suite", diff_suite)
+	# 	cv2.imshow("diff_rank", diff_rank)
 	# 	cv2.imshow("cur_suite_thresh", cur_suite_thresh)
 	# 	cv2.imshow("cur_rank_thresh", cur_rank_thresh)
 
